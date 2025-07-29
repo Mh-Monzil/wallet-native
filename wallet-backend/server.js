@@ -81,6 +81,23 @@ app.get("/api/transactions/:userId", async (req, res) => {
   }
 });
 
+app.delete("/api/transactions/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await SQL`DELETE FROM transactions WHERE id = ${id} RETURNING *`;
+
+    if (result.count === 0) {
+      return res.status(404).json({ error: "Transaction not found." });
+    }
+
+    res.status(200).json({ message: "Transaction deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting transaction:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
 initDB().then(() => {
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
